@@ -1,0 +1,30 @@
+apiVersion: agentops.clush.net/v4
+kind: Application
+spec:
+  name: "answer-3"
+  repository: "github.com/nalbam-two/answer"
+  owner: "daiZeCCLUVIImHueuPraWZkkBViF3ZXJ"
+  description: "Apache Answer Q&A community (dev)"
+runtime:
+  port: 8080
+  health: "/healthz"
+  command:
+    - "/bin/bash"
+    - "-c"
+  args:
+    - "set -e; export DB_TYPE=postgres DB_HOST=\"$DB_PGHOST\" DB_NAME=\"$DB_PGDATABASE\" DB_USERNAME=\"$DB_PGUSER\" DB_PASSWORD=\"$DB_PGPASSWORD\"; mkdir -p /data/conf; if [ ! -f /data/conf/config.yaml ]; then { echo \"server:\"; echo \"  http:\"; echo \"    addr: 0.0.0.0:8080\"; echo \"data:\"; echo \"  database:\"; echo \"    driver: postgres\"; echo \"    connection: $DB_DATABASE_URL\"; echo \"  cache:\"; echo \"    file_path: /data/cache/cache.db\"; echo \"i18n:\"; echo \"  bundle_dir: /data/i18n\"; echo \"service_config:\"; echo \"  upload_path: /data/uploads\"; echo \"  clean_up_uploads: true\"; echo \"ui:\"; echo \"  public_url: /\"; echo \"  api_url: /\"; } > /data/conf/config.yaml; fi; exec /entrypoint.sh"
+secrets:
+  - ADMIN_PASSWORD
+env:
+  AUTO_INSTALL: "true"
+  ADMIN_NAME: "admin"
+  ADMIN_EMAIL: "two@nalbam.com"
+  INSTALL_PORT: "8080"
+  SITE_ADDR: "0.0.0.0:8080"
+  SITE_NAME: "Apache Answer"
+  LANGUAGE: "ko-KR"
+build:
+  context: "."
+test:
+  image: "golang:1.25"
+  command: "go test ./..."
